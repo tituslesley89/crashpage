@@ -15,15 +15,15 @@
 
   <br>
   <button onclick="runInfiniteLoop()">Run infinite loop</button>
+  <button onclick="playAllVideos()">Play all videos</button>
+  <button onclick="force4k()">Force 4k</button>
 </body>
 <script>
-
 function playAllVideos() {
     var videos = document.querySelectorAll('iframe[src^="https://www.youtube.com/embed/"]');
+
     videos.forEach(function(video) {
-        video.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-        video.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
-        video.contentWindow.postMessage('{"event":"command","func":"setLoop","args":"1"}', '*');
+        video.src = video.src + "?autoplay=1&mute=1&loop=1";
     });
 }
 
@@ -32,5 +32,51 @@ function runInfiniteLoop() {
   while(1) {
     txt += "a";
 }
+
+  let sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function waitForVideo() {
+    let video = document.querySelector('video');
+    while (!video) {
+        console.log('waiting for video');
+        await sleep(200);
+        video = document.querySelector('video');
+    }
+}
+
+/**
+ * Sets the quality
+ * options are: "Highest" and the options available in the menu ("720p", "480p", etc.)
+ */
+async function setQuality(quality) {
+    await waitForVideo();
+    await sleep(1000);
+
+    let settingsButton = document.querySelector('.ytp-settings-button');
+    settingsButton.click();
+    await sleep(500);
+
+    let qualityMenu = document.querySelector('.ytp-panel-menu').lastElementChild;
+    qualityMenu.click();
+    await sleep(500);
+
+    let qualityOptions = [...document.querySelectorAll('.ytp-menuitem')];
+    let selection;
+    if (quality === 'Highest') selection = qualityOptions[0];
+    else selection = qualityOptions.filter((el) => el.innerText == quality)[0];
+
+    if (!selection) {
+        let qualityTexts = qualityOptions.map((el) => el.innerText).join('\n');
+        console.log('"' + quality + '" not found. Options are: \n\nHighest\n' + qualityTexts);
+        settingsButton.click(); // click the menu button to close it
+        return;
+    }
+
+    selection.click();
+}
+
+  function force4k() {
+    setQuality('Highest');
+  }
 </script>
 </html>
