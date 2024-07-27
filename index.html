@@ -2,25 +2,21 @@
 <html>
 <body>
 
-
-<h2>Crashing Now</h2>
-
-
-<p>Hit Ok To Crash</p>
-
-
-<p id="demo"></p>
-
-
+  <button id="mem-over">Overflow memory</button>
+  
 <script>
-onbeforeunload = function(){localStorage.x=1};
 
-
-if(confirm("Do you REALLY want me to crash your browser?")){
-  setTimeout(function(){
-    while(1)location.reload(1)
-  }, 1000)
-}
+  const updateButton = function(button) {
+    button.innerText = "Running..."
+  }
+  
+document.getElementById("mem-over").addEventListener("click", function() {
+  updateButton(document.getElementById("mem-over"))
+  txt = "a";
+  while(1){
+      txt = txt += "a";    //add as much as the browser can handle
+  }
+});
 </script>
 
 
